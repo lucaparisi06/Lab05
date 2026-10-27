@@ -1,4 +1,7 @@
 import flet as ft
+from flet import Icons
+from flet.controls import alignment
+
 from alert import AlertManager
 from deposito_strumenti import DepositoStrumenti
 
@@ -38,6 +41,34 @@ def main(page: ft.Page):
     # Tutti i TextField per le info necessarie per aggiungere un nuovo strumento (tipo, marca, anno, contatore posti)
     # TODO
 
+    input_tipo = ft.TextField(label = 'Tipo' )
+    input_marca = ft.TextField(label = 'Marca')
+    input_anno = ft.TextField(label = 'Anno di acquisto')
+
+    def handler_minus(e):
+        v = int(myText.value)
+        v = v - 50
+        myText.value = v
+        myText.update()
+    def handler_plus(e):
+        v = int(myText.value)
+        v = v + 50
+        myText.value = v
+        myText.update()
+
+    myBtnMinus = ft.IconButton(icon = ft.Icons.REMOVE, icon_size = 50, on_click = handler_minus)
+    myBtnPlus = ft.IconButton(icon = ft.Icons.ADD, icon_size = 50, on_click = handler_plus)
+    myText = ft.TextField(value = 500,
+                          disabled = True,
+                          width = 150,
+                          text_size = 50,
+                          text_align = ft.TextAlign.CENTER)
+    myRow = ft.Row([myBtnMinus, myText, myBtnPlus],
+                   alignment = ft.MainAxisAlignment.CENTER)
+    riga_principale = ft.Row([input_tipo, input_marca, input_anno, myRow],
+                             alignment = ft.MainAxisAlignment.CENTER)
+
+
     # --- FUNZIONI APP ---
     def aggiorna_lista_strumenti():
         lista_strumenti.controls.clear()
@@ -57,12 +88,31 @@ def main(page: ft.Page):
     # Handlers per la gestione dei pulsanti utili all'inserimento di un nuovo strumento
     # TODO
 
+    def handler_inserimentoStrumento(e):
+        try:
+            marca = input_marca.value
+            anno = int(input_anno.value)
+            tipo = input_tipo.value
+            costo = int(myText.value)
+            deposito.aggiungi_strumento(tipo, marca, anno, costo)
+            aggiorna_lista_strumenti()
+            input_tipo.value = ""
+            input_anno.value = ""
+            input_marca.value = ""
+            myText.value = 500
+            page.update()
+        except ValueError:
+            alert.show_alert('Inserisci un anno valido')
+
+
+
     # --- EVENTI ---
     toggle_cambia_tema = ft.Switch(label="Tema scuro", value=True, on_change=cambia_tema)
     pulsante_conferma_responsabile = ft.Button("Conferma", on_click=conferma_responsabile)
 
     # Pulsanti per la gestione dell'inserimento di un nuovo strumento
     # TODO
+    pulsante_conferma_strumento = ft.Button('Aggiungi strumento', on_click = handler_inserimentoStrumento)
 
     # --- LAYOUT ---
     page.add(
@@ -81,6 +131,9 @@ def main(page: ft.Page):
 
         # Sezione 3
         # TODO
+        ft.Text("Aggiungi Nuovo Strumento", size=20),
+        pulsante_conferma_strumento,
+        riga_principale,
 
         # Sezione 4
         ft.Divider(),
